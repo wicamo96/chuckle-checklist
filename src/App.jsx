@@ -1,10 +1,30 @@
 import "./App.css"
 import stevePic from "./assets/steve.png"
-import { useState } from "react"
-import { postNewJoke } from "./services/jokeService.jsx"
+import { useEffect, useState } from "react"
+import { getAllJokes, postNewJoke } from "./services/jokeService.jsx"
 
 export const App = () => {
   const [newJoke, setNewJoke] = useState()
+  const [allJokes, setAllJokes] = useState()
+  const [untoldJokes, setUntoldJokes] = useState()
+  const [toldJokes, setToldJokes] = useState()
+
+  useEffect(() => {
+    getAllJokes().then(jokesArray => {
+      setAllJokes(jokesArray)
+      console.log("Jokes set!")
+    }).then(() => {
+      if (allJokes) {
+        const untold = allJokes.filter(joke => joke.told === false)
+        setUntoldJokes(untold)
+        
+        const told = allJokes.filter(joke => joke.told)
+        setToldJokes(told)
+      }
+      
+      console.log("told and untold jokes set!")
+    })
+  }, [])
 
 
   return ( 
@@ -28,6 +48,14 @@ export const App = () => {
               }}>
         </input>
         <button className="joke-input-submit joke-input-submit:hover joke-input-submit:active" onClick={() => postNewJoke({joke: newJoke, told: false}).then(setNewJoke(""))}>Add</button>
+      </div>
+      <div className="joke-lists-container">
+        <div className="joke-list-container">
+          <h2>Told <span className="told-count"></span></h2>
+        </div>
+        <div className="joke-list-container">
+          <h2>Untold <span className="untold-count"></span></h2>
+        </div>
       </div>
     </div>
   </>
